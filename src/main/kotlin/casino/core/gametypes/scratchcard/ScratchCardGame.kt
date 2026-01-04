@@ -24,22 +24,24 @@ class ScratchCardGame: IGame{
     }
     override fun endGame(){
         require(isGameActive) { "Game is not active" }
-
         scratchCard.revealAllFields()
+        resolveBets()
+        bets.clear()
+        isGameActive = false
+    }
+    override fun resolveBets(){
         val reward = scratchCard.calculateReward()
         val (player, bet) = bets.entries.first()
         val payout = reward * bet.amount
         player.addBalance(payout)
-        bets.clear()
-        isGameActive = false
     }
-    override fun placeBet(player: Player, amount: Float){
+    override fun placeBet(player: Player, bet: Bet){
         require(!isGameActive) { "Cannot place a bet while the game is active" }
-        require(supportedBets.contains(amount)) { "Unsupported bet amount, possible bets: $supportedBets" }
+        require(supportedBets.contains(bet.amount)) { "Unsupported bet amount, possible bets: $supportedBets" }
         require(!bets.containsKey(player)) { "Bet already placed for player: $player" }
 
-        player.subtractBalance(amount)
-        bets[player] = Bet(amount)
+        player.subtractBalance(bet.amount)
+        bets[player] = bet
     }
 
     fun scratchField(index: Int){

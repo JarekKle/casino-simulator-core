@@ -1,5 +1,5 @@
 package main.kotlin.casino.core.game
 
-data class Bet(
+open class Bet(
     val amount: Float
 )

@@ -11,6 +11,7 @@ interface IGame {
     val bets: MutableMap<Player, Bet>
 
     fun startGame(players: List<Player>){}
+    fun resolveBets(){}
     fun endGame(){}
-    fun placeBet(player: Player, amount: Float){}
+    fun placeBet(player: Player, bet: Bet){}
 }
