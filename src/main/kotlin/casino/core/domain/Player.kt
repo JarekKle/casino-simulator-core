@@ -3,6 +3,15 @@ package main.kotlin.casino.core.domain
 data class Player(
     val id: Int,
     val name: String,
-    val balance: Double,
+    var balance: Float,
     val playerType: PlayerType
-)
+){
+    fun addBalance(amount: Float) {
+        balance += amount
+    }
+
+    fun subtractBalance(amount: Float) {
+        require(balance >= amount) { "Insufficient balance" }
+        balance -= amount
+    }
+}
