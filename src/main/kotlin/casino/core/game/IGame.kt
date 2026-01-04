@@ -6,8 +6,9 @@ interface IGame {
     val name: GameType
     val minPlayers: Int
     val maxPlayers: Int
-    val supportedBets: List<Double>
+    val supportedBets: List<Float>
     val isGameActive: Boolean
+    val bets: MutableMap<Player, Bet>
 
     fun startGame(players: List<Player>){}
     fun endGame(){}
