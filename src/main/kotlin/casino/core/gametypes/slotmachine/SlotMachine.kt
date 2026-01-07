@@ -5,14 +5,24 @@ class SlotMachine private constructor(
     val cols: Int,
     private val symbols: List<Symbol>,
     private val payLines: List<PayLine>,
-    private val payoutTable: Map<Symbol, Int>
+    private val paytable: List<PaytableEntry>
 ) {
 
     var board: Array<Array<Symbol>> = emptyArray()
         private set
 
     companion object {
-        fun standard3x3(): SlotMachine {
+
+        fun standard5x3HorizontalLines(): SlotMachine {
+            val rows = 3
+            val cols = 5
+
+            val payLines = (0 until rows).map { row ->
+                PayLine(
+                    positions = (0 until cols).map { col -> row to col }
+                )
+            }
+
             val symbols = listOf(
                 Symbol.CHERRY,
                 Symbol.LEMON,
@@ -21,34 +31,74 @@ class SlotMachine private constructor(
                 Symbol.SEVEN
             )
 
-            val payLines = listOf(
-                PayLine(listOf(0 to 0, 0 to 1, 0 to 2)),
-                PayLine(listOf(1 to 0, 1 to 1, 1 to 2)),
-                PayLine(listOf(2 to 0, 2 to 1, 2 to 2))
-            )
-
-            val payoutTable = mapOf(
-                Symbol.CHERRY to 2,
-                Symbol.LEMON to 3,
-                Symbol.ORANGE to 5,
-                Symbol.BAR to 10,
-                Symbol.SEVEN to 50
-            )
+            val paytable = buildPaytable(symbols)
 
             return SlotMachine(
-                rows = 3,
-                cols = 3,
+                rows = rows,
+                cols = cols,
                 symbols = symbols,
                 payLines = payLines,
-                payoutTable = payoutTable
+                paytable = paytable
             )
+        }
+
+        private fun buildPaytable(symbols: List<Symbol>): List<PaytableEntry> {
+            val lineCounts = listOf(3, 4, 5)
+            val multipliers = listOf(2.0, 3.0, 5.0, 7.0, 9.0)
+
+            val table = mutableListOf<PaytableEntry>()
+
+            for (symbol in symbols) {
+                for ((index, count) in lineCounts.withIndex()) {
+                    table.add(
+                        PaytableEntry(
+                            symbol = symbol,
+                            count = count,
+                            multiplier = multipliers[index]
+                        )
+                    )
+                }
+            }
+            return table
         }
     }
 
     fun spin() {
+        board = Array(rows) {
+            Array(cols) {
+                randomSymbol()
+            }
+        }
+    }
+    fun calculateMultiplier(): Double {
+        var totalMultiplier = 0.0
+
+        for (payLine in payLines) {
+            val symbolsOnLine = payLine.positions.map { (r, c) ->
+                board[r][c]
+            }
+
+            val firstSymbol = symbolsOnLine.first()
+
+            val matchCount = symbolsOnLine
+                .takeWhile { it == firstSymbol }
+                .count()
+
+            val entry = paytable
+                .filter {
+                    it.symbol == firstSymbol && it.count <= matchCount
+                }
+                .maxByOrNull { it.count }
+
+            if (entry != null) {
+                totalMultiplier += entry.multiplier
+            }
+        }
+        return totalMultiplier
     }
 
-    fun calculateReward(): Int {
-        return TODO("Provide the return value")
-    }
+
+    private fun randomSymbol(): Symbol =
+        symbols.random()
+
 }
