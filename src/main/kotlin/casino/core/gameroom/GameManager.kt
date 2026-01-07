@@ -3,10 +3,13 @@ package main.kotlin.casino.core.gameroom
 import main.kotlin.casino.core.game.IGame
 
 object GameManager {
-    private val activeRooms = mutableMapOf<String, GameRoom>()
-    fun getRoom(roomId: Int): GameRoom {
-        return TODO("Provide the return value")
+    private val activeRooms = mutableMapOf<Int, GameRoom>()
+    var id: Int = 0
+    fun getRoom(roomId: Int): GameRoom? = activeRooms.get(roomId)
+    fun createRoom(game: IGame, playerLimit: Int) {
+        activeRooms[id++] = GameRoom(game,playerLimit)
     }
-    fun createRoom(game: IGame, playerLimit: Int) {}
-    fun closeRoom(id: String) {}
+    fun closeRoom(roomId: Int){
+        activeRooms.remove(roomId)
+    }
 }
