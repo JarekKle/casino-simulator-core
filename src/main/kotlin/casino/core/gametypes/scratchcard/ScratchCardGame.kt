@@ -17,10 +17,14 @@ class ScratchCardGame : IGame {
     override fun startGame() {
         scratchCard = ScratchCard.standard3x3()
     }
-
-    override fun endGame(): Map<Player, Float> {
+    override fun endGame(){
+        require(isGameActive) { "Game is not active" }
         scratchCard.revealAllFields()
-
+        resolveBets()
+        bets.clear()
+        isGameActive = false
+    }
+    override fun resolveBets(){
         val reward = scratchCard.calculateReward()
         val (player, bet) = bets.entries.first()
         bets.clear()
